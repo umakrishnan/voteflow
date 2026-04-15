@@ -41,7 +41,10 @@
   }
 
   .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm transition-shadow duration-200;
+  }
+  .card:hover {
+    box-shadow: 0 4px 24px -4px rgba(99, 102, 241, 0.12);
   }
 
   .badge {

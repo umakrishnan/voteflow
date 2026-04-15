@@ -213,6 +213,7 @@ export default function ElectionAdminPage() {
           <div className="flex items-center gap-3 mt-1">
             {statusBadge(election.status)}
             <span className="text-xs text-gray-400">{questions.length} question{questions.length !== 1 ? 's' : ''}</span>
+            {isDraft && <span className="text-xs text-green-500 flex items-center gap-1">✓ Autosaved</span>}
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -241,7 +242,7 @@ export default function ElectionAdminPage() {
           { label: 'Turnout', value: `${turnout}%` },
         ].map(s => (
           <div key={s.label} className="card p-4 text-center">
-            <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+            <p className="text-2xl font-bold" style={{ color: election.primary_color || '#6366f1' }}>{s.value}</p>
             <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
           </div>
         ))}

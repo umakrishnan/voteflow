@@ -38,7 +38,8 @@ export default function HomePage() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="text-center py-16 sm:py-24 animate-fade-in">
+      <section className="text-center py-16 sm:py-24 animate-fade-in relative">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(99,102,241,0.10),transparent)]" />
         <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
           <span>✨</span> Simple, fair, and in beta
         </div>
