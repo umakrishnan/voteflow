@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
+const { initSchema } = require('./db/database');
 const authRoutes = require('./routes/auth');
 const electionRoutes = require('./routes/elections');
 const voteRoutes = require('./routes/votes');
@@ -32,7 +33,14 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`VoTally API running on http://localhost:${PORT}`);
-});
+initSchema()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`VoTally API running on http://localhost:${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Failed to initialize database schema:', err);
+    process.exit(1);
+  });
 
