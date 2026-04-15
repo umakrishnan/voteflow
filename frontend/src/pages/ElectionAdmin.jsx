@@ -37,6 +37,7 @@ export default function ElectionAdminPage() {
   const [voterInput, setVoterInput] = useState('');
   const [voterMsg, setVoterMsg] = useState('');
   const [sending, setSending] = useState(false);
+  const [csvError, setCsvError] = useState('');
 
   // Email template state
   const [showEmailTemplate, setShowEmailTemplate] = useState(false);
@@ -63,9 +64,11 @@ export default function ElectionAdminPage() {
     e.preventDefault();
     if (!newQuestion.title.trim()) return;
     try {
-      await api.post(`/elections/${slug}/questions`, newQuestion);
+      const res = await api.post(`/elections/${slug}/questions`, newQuestion);
       setNewQuestion({ title: '', description: '', method: 'plurality', max_choices: 1 });
       setShowAddQuestion(false);
+      setExpandedQuestion(res.data.question.id);
+      setAddingOptionTo(res.data.question.id);
       refresh();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to add question');
@@ -98,6 +101,29 @@ export default function ElectionAdminPage() {
   };
 
   // ── Voters ────────────────────────────────────────────────────────────────
+
+  const handleCsvUpload = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setCsvError('');
+    const reader = new FileReader();
+    reader.onload = evt => {
+      const lines = evt.target.result.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      // Skip header row if it looks like a header (first cell is "email" or "name")
+      const firstCell = lines[0]?.split(',')[0]?.trim().toLowerCase();
+      const rows = (firstCell === 'email' || firstCell === 'name') ? lines.slice(1) : lines;
+      if (!rows.length) { setCsvError('No voter rows found in CSV.'); return; }
+      const parsed = rows.map(row => {
+        const cols = row.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+        return cols.filter(Boolean).join(', ');
+      }).filter(Boolean);
+      setVoterInput(prev => prev ? prev + '\n' + parsed.join('\n') : parsed.join('\n'));
+      setCsvError('');
+    };
+    reader.onerror = () => setCsvError('Failed to read file.');
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const addVoters = async e => {
     e.preventDefault();
@@ -440,11 +466,19 @@ export default function ElectionAdminPage() {
 
           {/* Add voters */}
           <div className="card p-4">
-            <p className="text-sm font-medium text-gray-700 mb-1">Add voters</p>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm font-medium text-gray-700">Add voters</p>
+              <label className="btn-secondary text-xs cursor-pointer">
+                Upload CSV
+                <input type="file" accept=".csv,text/csv" className="sr-only" onChange={handleCsvUpload} />
+              </label>
+            </div>
             <p className="text-xs text-gray-400 mb-3">
-              One per line: <code className="bg-gray-100 px-1 rounded">email@example.com</code> or{' '}
-              <code className="bg-gray-100 px-1 rounded">email@example.com, Name</code>
+              CSV columns: <code className="bg-gray-100 px-1 rounded">email, name</code> — or paste one per line below
             </p>
+            {csvError && (
+              <div className="mb-3 p-2 rounded-lg bg-red-50 text-red-600 text-xs border border-red-200">{csvError}</div>
+            )}
             <form onSubmit={addVoters}>
               <textarea
                 className="input mb-3"

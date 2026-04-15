@@ -33,5 +33,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`VoteFlow API running on http://localhost:${PORT}`);
+  console.log(`VoTally API running on http://localhost:${PORT}`);
 });
+

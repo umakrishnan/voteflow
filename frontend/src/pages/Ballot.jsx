@@ -233,7 +233,7 @@ export default function BallotPage() {
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Vote recorded!</h1>
           <p className="text-gray-500 text-sm">{successMsg || 'You have already voted in this election.'}</p>
-          <p className="text-xs text-gray-400 mt-4">Powered by VoteFlow</p>
+          <p className="text-xs text-gray-400 mt-4">Powered by VoTally</p>
         </div>
       </div>
     );

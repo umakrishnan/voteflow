@@ -1,5 +1,5 @@
 /**
- * VoteFlow Voting Methods Engine
+ * VoTally Voting Methods Engine
  * Supports: Plurality, Instant Runoff (IRV), Approval, Condorcet (Schulze)
  */
 

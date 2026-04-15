@@ -23,3 +23,5 @@ npm-debug.log*
 # Editor
 .vscode/
 .idea/
+.claude/worktrees/
+backend/data/

@@ -307,7 +307,7 @@ router.post('/:slug/voters/send-emails', requireAuth, async (req, res) => {
 
     const htmlBody = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
       ${bodyText.split('\n').map(line => line ? `<p style="margin:0 0 12px">${line}</p>` : '<br>').join('')}
-      <p style="margin:24px 0 0;font-size:12px;color:#9ca3af">Powered by VoteFlow</p>
+      <p style="margin:24px 0 0;font-size:12px;color:#9ca3af">Powered by VoTally</p>
     </div>`;
 
     try {

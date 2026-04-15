@@ -24,13 +24,13 @@ const features = [
   },
   {
     icon: '🆓',
-    title: 'Free — really',
-    desc: 'No credit card. No voter cap. No surprise fees.',
+    title: 'Free during beta',
+    desc: 'No credit card needed while we\'re in beta. Enjoy full access at no cost — for now.',
   },
   {
     icon: '⚡',
     title: 'Up in minutes',
-    desc: 'Guided setup wizard. Add candidates, paste voter emails, go.',
+    desc: 'Guided setup wizard. Add questions, paste voter emails, go.',
   },
 ];
 
@@ -40,14 +40,14 @@ export default function HomePage() {
       {/* Hero */}
       <section className="text-center py-16 sm:py-24 animate-fade-in">
         <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          <span>✨</span> Simple, fair, and free
+          <span>✨</span> Simple, fair, and in beta
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight mb-5">
-          Run fair elections,<br />beautifully.
+          Run elections, <span className="text-brand-500">totally</span> right.<br />Your <span className="text-brand-500">vote's</span> best <span className="text-brand-500">ally</span> for every <span className="text-brand-500">tally</span>.
         </h1>
         <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
-          VoteFlow makes it easy to run secure, transparent elections for any organization —
-          without the dated UI or per-voter fees.
+          VoTally makes it easy to run secure, transparent elections for any organization —
+          with beautiful ballots, instant results, and voter emails built in.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link to="/register" className="btn-primary btn-lg w-full sm:w-auto">
@@ -76,9 +76,9 @@ export default function HomePage() {
       <section className="text-center py-12">
         <div className="card p-10 bg-brand-500 border-0 text-white">
           <h2 className="text-2xl font-bold mb-3">Ready to run a better election?</h2>
-          <p className="text-brand-100 mb-6">No credit card. No limits. Just great voting.</p>
+          <p className="text-brand-100 mb-6">Free during beta — full access, no credit card required.</p>
           <Link to="/register" className="inline-flex btn bg-white text-brand-600 hover:bg-brand-50 btn-lg font-semibold">
-            Get started free
+            Get started
           </Link>
         </div>
       </section>
