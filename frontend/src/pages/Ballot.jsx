@@ -2,24 +2,156 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api';
 
+function PluralityQuestion({ question, answer, onChange }) {
+  return (
+    <div className="space-y-2">
+      {question.options.map(opt => (
+        <label
+          key={opt.id}
+          className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all
+            ${answer?.candidateId === opt.id ? 'border-current bg-opacity-5' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+          style={answer?.candidateId === opt.id ? { borderColor: 'var(--color)', backgroundColor: 'var(--color-light)' } : {}}
+        >
+          <input
+            type="radio"
+            name={`q-${question.id}`}
+            value={opt.id}
+            checked={answer?.candidateId === opt.id}
+            onChange={() => onChange({ candidateId: opt.id })}
+          />
+          <div>
+            <p className="font-medium text-gray-900 text-sm">{opt.name}</p>
+            {opt.description && <p className="text-xs text-gray-400">{opt.description}</p>}
+          </div>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+function RankedQuestion({ question, answer, onChange }) {
+  const rankings = answer?.rankings || [];
+  const rankedIds = new Set(rankings.map(r => r.candidateId));
+  const unranked = question.options.filter(o => !rankedIds.has(o.id));
+  const optMap = Object.fromEntries(question.options.map(o => [o.id, o]));
+
+  const rank = (id) => {
+    const newRankings = [...rankings, { candidateId: id, rank: rankings.length + 1 }];
+    onChange({ rankings: newRankings });
+  };
+
+  const unrank = (id) => {
+    const filtered = rankings
+      .filter(r => r.candidateId !== id)
+      .map((r, i) => ({ ...r, rank: i + 1 }));
+    onChange({ rankings: filtered });
+  };
+
+  return (
+    <div className="space-y-4">
+      {rankings.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Your ranking</p>
+          <div className="space-y-2">
+            {rankings.map(r => (
+              <div key={r.candidateId} className="flex items-center gap-3 p-3 rounded-xl border-2 border-green-300 bg-green-50">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white bg-green-500">
+                  {r.rank}
+                </div>
+                <span className="font-medium text-gray-900 text-sm flex-1">{optMap[r.candidateId]?.name}</span>
+                <button onClick={() => unrank(r.candidateId)} className="text-gray-300 hover:text-red-400 transition-colors">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {unranked.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+            {rankings.length > 0 ? 'Remaining' : 'Click to rank'}
+          </p>
+          <div className="space-y-2">
+            {unranked.map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => rank(opt.id)}
+                className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 transition-all text-left group"
+              >
+                <div className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 group-hover:border-indigo-400 flex items-center justify-center text-xs text-gray-400 group-hover:text-indigo-400">+</div>
+                <span className="font-medium text-gray-700 text-sm">{opt.name}</span>
+                {opt.description && <span className="text-xs text-gray-400 ml-auto">{opt.description}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ApprovalQuestion({ question, answer, onChange }) {
+  const approved = answer?.approvedIds || [];
+  const max = question.max_choices || question.options.length;
+
+  const toggle = (id) => {
+    if (approved.includes(id)) {
+      onChange({ approvedIds: approved.filter(x => x !== id) });
+    } else if (approved.length < max) {
+      onChange({ approvedIds: [...approved, id] });
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      {max < question.options.length && (
+        <p className="text-xs text-gray-500 mb-3">Select up to {max}</p>
+      )}
+      {question.options.map(opt => {
+        const isChecked = approved.includes(opt.id);
+        const isDisabled = !isChecked && approved.length >= max;
+        return (
+          <label
+            key={opt.id}
+            className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all
+              ${isChecked ? 'border-green-500 bg-green-50' : isDisabled ? 'border-gray-100 bg-gray-50 opacity-50' : 'border-gray-200 bg-white hover:border-gray-300 cursor-pointer'}`}
+          >
+            <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={() => toggle(opt.id)}
+              disabled={isDisabled}
+              className="accent-green-500 w-4 h-4"
+            />
+            <div>
+              <p className="font-medium text-gray-900 text-sm">{opt.name}</p>
+              {opt.description && <p className="text-xs text-gray-400">{opt.description}</p>}
+            </div>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
+const METHOD_INSTRUCTIONS = {
+  plurality: 'Select one option.',
+  irv: 'Click options to rank them in order of preference (1st choice first).',
+  condorcet: 'Click options to rank them from most to least preferred.',
+  approval: 'Select all options you approve of.',
+};
+
 export default function BallotPage() {
   const { token } = useParams();
-  const [state, setState] = useState('loading'); // loading | ready | voted | error | closed
+  const [state, setState] = useState('loading');
   const [election, setElection] = useState(null);
-  const [candidates, setCandidates] = useState([]);
+  const [questions, setQuestions] = useState([]);
   const [voter, setVoter] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
-
-  // Plurality
-  const [selectedId, setSelectedId] = useState(null);
-
-  // IRV / Condorcet — drag-to-rank
-  const [rankings, setRankings] = useState([]); // [{candidateId, rank}]
-  const [unranked, setUnranked] = useState([]);
-
-  // Approval
-  const [approved, setApproved] = useState([]);
-
+  const [answers, setAnswers] = useState({}); // { [questionId]: choiceObject }
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -27,63 +159,51 @@ export default function BallotPage() {
     api.get(`/vote/${token}`)
       .then(res => {
         setElection(res.data.election);
-        setCandidates(res.data.candidates);
+        setQuestions(res.data.questions);
         setVoter(res.data.voter);
-        setUnranked(res.data.candidates.map(c => c.id));
         setState('ready');
       })
       .catch(err => {
         const msg = err.response?.data?.error || 'Invalid voting link';
         const alreadyVoted = err.response?.data?.alreadyVoted;
-        if (alreadyVoted) { setState('voted'); }
+        if (alreadyVoted) setState('voted');
         else if (err.response?.status === 403) { setState('closed'); setErrorMsg(msg); }
         else { setState('error'); setErrorMsg(msg); }
       });
   }, [token]);
 
-  const rankCandidate = (candidateId) => {
-    if (rankings.find(r => r.candidateId === candidateId)) return;
-    const newRank = rankings.length + 1;
-    setRankings(r => [...r, { candidateId, rank: newRank }]);
-    setUnranked(u => u.filter(id => id !== candidateId));
+  const setAnswer = (questionId, choice) => {
+    setAnswers(a => ({ ...a, [questionId]: choice }));
   };
 
-  const unrankCandidate = (candidateId) => {
-    const filtered = rankings.filter(r => r.candidateId !== candidateId)
-      .map((r, i) => ({ ...r, rank: i + 1 }));
-    setRankings(filtered);
-    setUnranked(u => [...u, candidateId]);
-  };
-
-  const toggleApproval = (id) => {
-    setApproved(a => a.includes(id) ? a.filter(x => x !== id) : [...a, id]);
-  };
-
-  const buildChoices = () => {
-    if (election.method === 'plurality') return { candidateId: selectedId };
-    if (election.method === 'irv' || election.method === 'condorcet') return { rankings };
-    if (election.method === 'approval') return { approvedIds: approved };
-    return {};
+  const validate = () => {
+    for (const q of questions) {
+      const ans = answers[q.id];
+      if (q.method === 'plurality' && !ans?.candidateId) {
+        return `Please make a selection for "${q.title}"`;
+      }
+      if ((q.method === 'irv' || q.method === 'condorcet') && (!ans?.rankings || ans.rankings.length === 0)) {
+        return `Please rank at least one option for "${q.title}"`;
+      }
+      if (q.method === 'approval' && (!ans?.approvedIds || ans.approvedIds.length === 0)) {
+        return `Please select at least one option for "${q.title}"`;
+      }
+    }
+    return null;
   };
 
   const handleSubmit = async () => {
-    // Validate
-    if (election.method === 'plurality' && !selectedId) {
-      alert('Please select a candidate');
-      return;
-    }
-    if ((election.method === 'irv' || election.method === 'condorcet') && rankings.length === 0) {
-      alert('Please rank at least one candidate');
-      return;
-    }
-    if (election.method === 'approval' && approved.length === 0) {
-      alert('Please approve at least one candidate');
-      return;
-    }
+    const err = validate();
+    if (err) { alert(err); return; }
+
+    const answerPayload = questions.map(q => ({
+      questionId: q.id,
+      ...answers[q.id],
+    }));
 
     setSubmitting(true);
     try {
-      const res = await api.post(`/vote/${token}`, { choices: buildChoices() });
+      const res = await api.post(`/vote/${token}`, { answers: answerPayload });
       setSuccessMsg(res.data.message);
       setState('voted');
     } catch (err) {
@@ -93,7 +213,6 @@ export default function BallotPage() {
   };
 
   const primaryColor = election?.primary_color || '#6366f1';
-  const candidateMap = Object.fromEntries((candidates || []).map(c => [c.id, c]));
 
   if (state === 'loading') {
     return (
@@ -134,11 +253,10 @@ export default function BallotPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Colored header bar */}
       <div className="h-1.5" style={{ backgroundColor: primaryColor }} />
 
       <div className="max-w-lg mx-auto px-4 py-10 animate-slide-up">
-        {/* Ballot header */}
+        {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">{election.title}</h1>
           {election.description && (
@@ -149,116 +267,61 @@ export default function BallotPage() {
           )}
         </div>
 
-        {/* Method instructions */}
-        <div className="mb-6 p-3 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-700">
-          {election.method === 'plurality' && '☑️ Select one candidate.'}
-          {election.method === 'irv' && '🥇 Click candidates to rank them in order of preference (1st choice first).'}
-          {election.method === 'condorcet' && '⚖️ Click candidates to rank them from most to least preferred.'}
-          {election.method === 'approval' && '✅ Select all candidates you approve of.'}
+        {/* Questions */}
+        <div className="space-y-8">
+          {questions.map((q, qi) => (
+            <div key={q.id}>
+              {/* Question header */}
+              <div className="mb-4">
+                <div className="flex items-start gap-3">
+                  <span
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 mt-0.5"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    {qi + 1}
+                  </span>
+                  <div>
+                    <h2 className="font-semibold text-gray-900">{q.title}</h2>
+                    {q.description && <p className="text-sm text-gray-500 mt-0.5">{q.description}</p>}
+                  </div>
+                </div>
+                <div className="mt-3 ml-10 p-2.5 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-700">
+                  {METHOD_INSTRUCTIONS[q.method]}
+                </div>
+              </div>
+
+              {/* Voting UI per method */}
+              <div className="ml-10">
+                {q.method === 'plurality' && (
+                  <PluralityQuestion
+                    question={q}
+                    answer={answers[q.id]}
+                    onChange={choice => setAnswer(q.id, choice)}
+                  />
+                )}
+                {(q.method === 'irv' || q.method === 'condorcet') && (
+                  <RankedQuestion
+                    question={q}
+                    answer={answers[q.id]}
+                    onChange={choice => setAnswer(q.id, choice)}
+                  />
+                )}
+                {q.method === 'approval' && (
+                  <ApprovalQuestion
+                    question={q}
+                    answer={answers[q.id]}
+                    onChange={choice => setAnswer(q.id, choice)}
+                  />
+                )}
+              </div>
+
+              {qi < questions.length - 1 && <hr className="mt-8 border-gray-200" />}
+            </div>
+          ))}
         </div>
 
-        {/* IRV / Condorcet ranked ballot */}
-        {(election.method === 'irv' || election.method === 'condorcet') && (
-          <div className="space-y-4">
-            {rankings.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Your ranking</p>
-                <div className="space-y-2">
-                  {rankings.map((r, i) => (
-                    <div key={r.candidateId}
-                      className="flex items-center gap-3 p-3 rounded-xl border-2 border-green-300 bg-green-50">
-                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                        style={{ backgroundColor: primaryColor }}>
-                        {r.rank}
-                      </div>
-                      <span className="font-medium text-gray-900 text-sm flex-1">
-                        {candidateMap[r.candidateId]?.name}
-                      </span>
-                      <button onClick={() => unrankCandidate(r.candidateId)}
-                        className="text-gray-300 hover:text-red-400 transition-colors">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {unranked.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-                  {rankings.length > 0 ? 'Remaining candidates' : 'Click to rank'}
-                </p>
-                <div className="space-y-2">
-                  {unranked.map(id => (
-                    <button key={id}
-                      onClick={() => rankCandidate(id)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 transition-all text-left group">
-                      <div className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 group-hover:border-indigo-400 flex items-center justify-center text-xs text-gray-400 group-hover:text-indigo-400">
-                        +
-                      </div>
-                      <span className="font-medium text-gray-700 text-sm">{candidateMap[id]?.name}</span>
-                      {candidateMap[id]?.description && (
-                        <span className="text-xs text-gray-400 ml-auto">{candidateMap[id].description}</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Plurality ballot */}
-        {election.method === 'plurality' && (
-          <div className="space-y-2">
-            {candidates.map(c => (
-              <label key={c.id}
-                className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all
-                  ${selectedId === c.id ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                <input
-                  type="radio"
-                  name="candidate"
-                  value={c.id}
-                  checked={selectedId === c.id}
-                  onChange={() => setSelectedId(c.id)}
-                  className="accent-indigo-500"
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">{c.name}</p>
-                  {c.description && <p className="text-xs text-gray-400">{c.description}</p>}
-                </div>
-              </label>
-            ))}
-          </div>
-        )}
-
-        {/* Approval ballot */}
-        {election.method === 'approval' && (
-          <div className="space-y-2">
-            {candidates.map(c => (
-              <label key={c.id}
-                className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all
-                  ${approved.includes(c.id) ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                <input
-                  type="checkbox"
-                  checked={approved.includes(c.id)}
-                  onChange={() => toggleApproval(c.id)}
-                  className="accent-green-500 w-4 h-4"
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">{c.name}</p>
-                  {c.description && <p className="text-xs text-gray-400">{c.description}</p>}
-                </div>
-              </label>
-            ))}
-          </div>
-        )}
-
         {/* Submit */}
-        <div className="mt-8">
+        <div className="mt-10">
           <button
             onClick={handleSubmit}
             disabled={submitting}

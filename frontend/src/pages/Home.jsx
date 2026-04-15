@@ -40,7 +40,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="text-center py-16 sm:py-24 animate-fade-in">
         <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          <span>✨</span> Free alternative to OpaVote
+          <span>✨</span> Simple, fair, and free
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight mb-5">
           Run fair elections,<br />beautifully.
