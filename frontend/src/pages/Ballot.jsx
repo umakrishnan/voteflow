@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api';
 
-function PluralityQuestion({ question, answer, onChange }) {
+export function PluralityQuestion({ question, answer, onChange }) {
   return (
     <div className="space-y-2">
       {question.options.map(opt => (
@@ -29,7 +29,7 @@ function PluralityQuestion({ question, answer, onChange }) {
   );
 }
 
-function RankedQuestion({ question, answer, onChange }) {
+export function RankedQuestion({ question, answer, onChange }) {
   const rankings = answer?.rankings || [];
   const rankedIds = new Set(rankings.map(r => r.candidateId));
   const unranked = question.options.filter(o => !rankedIds.has(o.id));
@@ -93,7 +93,7 @@ function RankedQuestion({ question, answer, onChange }) {
   );
 }
 
-function ApprovalQuestion({ question, answer, onChange }) {
+export function ApprovalQuestion({ question, answer, onChange }) {
   const approved = answer?.approvedIds || [];
   const max = question.max_choices || question.options.length;
 
@@ -137,7 +137,7 @@ function ApprovalQuestion({ question, answer, onChange }) {
   );
 }
 
-const METHOD_INSTRUCTIONS = {
+export const METHOD_INSTRUCTIONS = {
   plurality: 'Select one option.',
   irv: 'Click options to rank them in order of preference (1st choice first).',
   condorcet: 'Click options to rank them from most to least preferred.',
