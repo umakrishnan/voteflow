@@ -20,7 +20,7 @@ export default function Layout({ children, title }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <span className="font-semibold text-gray-900">VoTally</span>
+            <span className="font-semibold text-gray-900">Vo<span className="text-brand-500">Tally</span></span>
           </Link>
 
           <nav className="flex items-center gap-2">
@@ -55,7 +55,7 @@ export default function Layout({ children, title }) {
 
       <footer className="border-t border-gray-200 bg-white mt-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <p className="text-xs text-gray-400">© {new Date().getFullYear()} VoTally. Free forever.</p>
+          <p className="text-xs text-gray-400">© {new Date().getFullYear()} Vo<span className="font-medium">Tally</span>.</p>
           <p className="text-xs text-gray-400">Secure • Private • Open</p>
         </div>
       </footer>

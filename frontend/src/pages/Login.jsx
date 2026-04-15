@@ -33,7 +33,7 @@ export default function LoginPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <span className="font-semibold text-gray-900 text-lg">VoTally</span>
+            <span className="font-semibold text-gray-900 text-lg">Vo<span className="text-brand-500">Tally</span></span>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Sign in</h1>
           <p className="text-gray-500 text-sm mt-1">Manage your elections</p>

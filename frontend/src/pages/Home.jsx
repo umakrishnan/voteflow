@@ -43,7 +43,7 @@ export default function HomePage() {
           <span>✨</span> Simple, fair, and in beta
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight mb-5">
-          Your vote's best ally.<br />Every tally, done right.
+          Run elections, <span className="text-brand-500">totally</span> right.<br />Your <span className="text-brand-500">vote's</span> best <span className="text-brand-500">ally</span> for every <span className="text-brand-500">tally</span>.
         </h1>
         <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
           VoTally makes it easy to run secure, transparent elections for any organization —
