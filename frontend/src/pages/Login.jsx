@@ -35,8 +35,8 @@ export default function LoginPage() {
             </div>
             <span className="font-semibold text-gray-900 text-lg">VoTally</span>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to manage your elections</p>
+          <h1 className="text-2xl font-bold text-gray-900">Sign in</h1>
+          <p className="text-gray-500 text-sm mt-1">Manage your elections</p>
         </div>
 
         <div className="card p-6">
