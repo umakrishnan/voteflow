@@ -30,7 +30,7 @@ const features = [
   {
     icon: '⚡',
     title: 'Up in minutes',
-    desc: 'Guided setup wizard. Add candidates, paste voter emails, go.',
+    desc: 'Guided setup wizard. Add questions, paste voter emails, go.',
   },
 ];
 
@@ -40,14 +40,14 @@ export default function HomePage() {
       {/* Hero */}
       <section className="text-center py-16 sm:py-24 animate-fade-in">
         <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          <span>✨</span> Simple, fair, and free
+          <span>✨</span> Simple, fair, and in beta
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight mb-5">
-          Run fair elections,<br />beautifully.
+          Your vote's best ally.<br />Every tally, done right.
         </h1>
         <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
           VoTally makes it easy to run secure, transparent elections for any organization —
-          without the dated UI or per-voter fees.
+          with beautiful ballots, instant results, and voter emails built in.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link to="/register" className="btn-primary btn-lg w-full sm:w-auto">
@@ -78,7 +78,7 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold mb-3">Ready to run a better election?</h2>
           <p className="text-brand-100 mb-6">Free during beta — full access, no credit card required.</p>
           <Link to="/register" className="inline-flex btn bg-white text-brand-600 hover:bg-brand-50 btn-lg font-semibold">
-            Get started free
+            Get started
           </Link>
         </div>
       </section>
