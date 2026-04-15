@@ -63,9 +63,11 @@ export default function ElectionAdminPage() {
     e.preventDefault();
     if (!newQuestion.title.trim()) return;
     try {
-      await api.post(`/elections/${slug}/questions`, newQuestion);
+      const res = await api.post(`/elections/${slug}/questions`, newQuestion);
       setNewQuestion({ title: '', description: '', method: 'plurality', max_choices: 1 });
       setShowAddQuestion(false);
+      setExpandedQuestion(res.data.question.id);
+      setAddingOptionTo(res.data.question.id);
       refresh();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to add question');
