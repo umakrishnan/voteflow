@@ -8,13 +8,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('voteflow_token');
+    const token = localStorage.getItem('votally_token');
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       api.get('/auth/me')
         .then(res => setUser(res.data.user))
         .catch(() => {
-          localStorage.removeItem('voteflow_token');
+          localStorage.removeItem('votally_token');
           delete api.defaults.headers.common['Authorization'];
         })
         .finally(() => setLoading(false));
@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
     const { user, token } = res.data;
-    localStorage.setItem('voteflow_token', token);
+    localStorage.setItem('votally_token', token);
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(user);
     return user;
@@ -35,14 +35,14 @@ export function AuthProvider({ children }) {
   const register = async (email, password, name) => {
     const res = await api.post('/auth/register', { email, password, name });
     const { user, token } = res.data;
-    localStorage.setItem('voteflow_token', token);
+    localStorage.setItem('votally_token', token);
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(user);
     return user;
   };
 
   const logout = () => {
-    localStorage.removeItem('voteflow_token');
+    localStorage.removeItem('votally_token');
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
   };

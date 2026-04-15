@@ -37,7 +37,7 @@ export default function RegisterPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <span className="font-semibold text-gray-900 text-lg">VoteFlow</span>
+            <span className="font-semibold text-gray-900 text-lg">VoTally</span>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
           <p className="text-gray-500 text-sm mt-1">Free forever — no credit card needed</p>

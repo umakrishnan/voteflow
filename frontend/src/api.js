@@ -6,7 +6,7 @@ const api = axios.create({
 });
 
 // Attach stored token on init
-const token = localStorage.getItem('voteflow_token');
+const token = localStorage.getItem('votally_token');
 if (token) {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 }
