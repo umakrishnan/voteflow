@@ -80,6 +80,15 @@ CREATE TABLE IF NOT EXISTS ballot_choices (
   approved INTEGER DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token TEXT NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  used_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_elections_slug ON elections(slug);
 CREATE INDEX IF NOT EXISTS idx_elections_owner ON elections(owner_id);
 CREATE INDEX IF NOT EXISTS idx_questions_election ON questions(election_id);

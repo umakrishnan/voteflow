@@ -9,6 +9,8 @@ import CreateElectionPage from './pages/CreateElection';
 import ElectionAdminPage from './pages/ElectionAdmin';
 import BallotPage from './pages/Ballot';
 import ResultsPage from './pages/Results';
+import ForgotPasswordPage from './pages/ForgotPassword';
+import ResetPasswordPage from './pages/ResetPassword';
 import NotFoundPage from './pages/NotFound';
 
 function ProtectedRoute({ children }) {
@@ -36,6 +38,8 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+          <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
           {/* Voter-facing (no auth needed — token in URL) */}
           <Route path="/vote/:token" element={<BallotPage />} />

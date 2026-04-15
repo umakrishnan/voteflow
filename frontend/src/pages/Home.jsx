@@ -20,7 +20,7 @@ const features = [
   {
     icon: '🎨',
     title: 'Beautiful ballots',
-    desc: 'Modern, mobile-first design. Customize colors and branding.',
+    desc: 'Clean, responsive design. Customize colors and branding.',
   },
   {
     icon: '🆓',
@@ -30,7 +30,7 @@ const features = [
   {
     icon: '⚡',
     title: 'Up in minutes',
-    desc: 'Guided setup wizard. Add questions, paste voter emails, go.',
+    desc: 'Create an election, add questions, invite voters. Most setups take under 5 minutes.',
   },
 ];
 
