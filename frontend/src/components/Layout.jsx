@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-export default function Layout({ children, title }) {
+export default function Layout({ children, title, bgClassName = 'bg-gray-50' }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -11,7 +11,7 @@ export default function Layout({ children, title }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={`min-h-screen flex flex-col ${bgClassName}`}>
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <Link to="/" className="flex items-center gap-2">

@@ -20,7 +20,7 @@ const features = [
   {
     icon: '🎨',
     title: 'Beautiful ballots',
-    desc: 'Modern, mobile-first design. Customize colors and branding.',
+    desc: 'Clean, responsive design. Customize colors and branding.',
   },
   {
     icon: '🆓',
@@ -30,13 +30,13 @@ const features = [
   {
     icon: '⚡',
     title: 'Up in minutes',
-    desc: 'Guided setup wizard. Add questions, paste voter emails, go.',
+    desc: 'Create an election, add questions, invite voters. Most setups take under 5 minutes.',
   },
 ];
 
 export default function HomePage() {
   return (
-    <Layout>
+    <Layout bgClassName="bg-[radial-gradient(ellipse_120%_80%_at_60%_-20%,rgba(99,102,241,0.18),transparent_60%)] bg-gray-50">
       {/* Hero */}
       <section className="text-center py-16 sm:py-24 animate-fade-in">
         <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-600 text-xs font-medium px-3 py-1 rounded-full mb-6">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import api from '../api';
+import { PluralityQuestion, RankedQuestion, ApprovalQuestion, METHOD_INSTRUCTIONS } from './Ballot';
 
 const METHODS = [
   { id: 'plurality', label: 'Plurality', desc: 'Pick one winner' },
@@ -17,7 +18,7 @@ const METHOD_BADGE = {
   condorcet: 'bg-orange-100 text-orange-700',
 };
 
-const TABS = ['Questions', 'Voters', 'Settings'];
+const TABS = ['Questions', 'Voters', 'Preview', 'Settings'];
 
 export default function ElectionAdminPage() {
   const { slug } = useParams();
@@ -212,6 +213,7 @@ export default function ElectionAdminPage() {
           <div className="flex items-center gap-3 mt-1">
             {statusBadge(election.status)}
             <span className="text-xs text-gray-400">{questions.length} question{questions.length !== 1 ? 's' : ''}</span>
+            {isDraft && <span className="text-xs text-green-500 flex items-center gap-1">✓ Autosaved</span>}
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -240,7 +242,7 @@ export default function ElectionAdminPage() {
           { label: 'Turnout', value: `${turnout}%` },
         ].map(s => (
           <div key={s.label} className="card p-4 text-center">
-            <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+            <p className="text-2xl font-bold" style={{ color: election.primary_color || '#6366f1' }}>{s.value}</p>
             <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
           </div>
         ))}
@@ -623,6 +625,76 @@ export default function ElectionAdminPage() {
         </div>
       )}
 
+      {/* ── PREVIEW TAB ── */}
+      {tab === 'Preview' && (
+        <div className="animate-fade-in">
+          <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-sm flex items-center gap-2">
+            <span>👁</span> Preview only — voters see this after opening the election. Submit is disabled.
+          </div>
+
+          {questions.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">
+              <p className="text-lg mb-1">No questions yet</p>
+              <p className="text-sm">Add questions in the Questions tab to preview the ballot.</p>
+            </div>
+          ) : (
+            <div className="max-w-lg mx-auto bg-gray-50 rounded-2xl overflow-hidden border border-gray-200">
+              <div className="h-1.5" style={{ backgroundColor: election.primary_color || '#6366f1' }} />
+              <div className="p-6">
+                <div className="mb-8">
+                  <h1 className="text-2xl font-bold text-gray-900 mb-2">{election.title}</h1>
+                  {election.description && <p className="text-gray-500 text-sm leading-relaxed">{election.description}</p>}
+                  <p className="text-xs text-gray-400 mt-3">Voting as <strong>Voter Name</strong></p>
+                </div>
+
+                <div className="space-y-8">
+                  {questions.map((q, qi) => (
+                    <div key={q.id}>
+                      <div className="mb-4">
+                        <div className="flex items-start gap-3">
+                          <span
+                            className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 mt-0.5"
+                            style={{ backgroundColor: election.primary_color || '#6366f1' }}
+                          >
+                            {qi + 1}
+                          </span>
+                          <div>
+                            <h2 className="font-semibold text-gray-900">{q.title}</h2>
+                            {q.description && <p className="text-sm text-gray-500 mt-0.5">{q.description}</p>}
+                          </div>
+                        </div>
+                        <div className="mt-3 ml-10 p-2.5 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-700">
+                          {METHOD_INSTRUCTIONS[q.method]}
+                        </div>
+                      </div>
+                      <div className="ml-10">
+                        {q.method === 'plurality' && <PluralityQuestion question={q} answer={{}} onChange={() => {}} />}
+                        {(q.method === 'irv' || q.method === 'condorcet') && <RankedQuestion question={q} answer={{}} onChange={() => {}} />}
+                        {q.method === 'approval' && <ApprovalQuestion question={q} answer={{}} onChange={() => {}} />}
+                      </div>
+                      {qi < questions.length - 1 && <hr className="mt-8 border-gray-200" />}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-10">
+                  <button
+                    disabled
+                    className="w-full py-3 rounded-xl text-white font-semibold text-sm opacity-40 cursor-not-allowed"
+                    style={{ backgroundColor: election.primary_color || '#6366f1' }}
+                  >
+                    Cast my vote → (disabled in preview)
+                  </button>
+                  <p className="text-center text-xs text-gray-400 mt-3">
+                    Your vote is anonymous and cannot be changed after submission.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── SETTINGS TAB ── */}
       {tab === 'Settings' && (
         <div className="animate-fade-in card p-5 max-w-md space-y-4">
@@ -633,12 +705,6 @@ export default function ElectionAdminPage() {
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Status</p>
             <p className="text-sm font-medium capitalize">{election.status}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Ballot link (share when open)</p>
-            <code className="text-xs bg-gray-100 px-2 py-1 rounded break-all">
-              {window.location.origin}/vote/[voter-token]
-            </code>
           </div>
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Questions</p>

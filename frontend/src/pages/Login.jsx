@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const justReset = searchParams.get('reset') === '1';
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,11 @@ export default function LoginPage() {
         </div>
 
         <div className="card p-6">
+          {justReset && (
+            <div className="mb-4 p-3 rounded-lg bg-green-50 text-green-700 text-sm border border-green-200">
+              Password updated — sign in with your new password.
+            </div>
+          )}
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm border border-red-200">
               {error}
@@ -68,6 +75,9 @@ export default function LoginPage() {
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                 required
               />
+            </div>
+            <div className="flex items-center justify-end">
+              <Link to="/forgot-password" className="text-xs text-brand-600 hover:underline">Forgot password?</Link>
             </div>
             <button type="submit" className="btn-primary w-full btn-lg" disabled={loading}>
               {loading ? 'Signing in…' : 'Sign in'}

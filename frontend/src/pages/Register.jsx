@@ -40,7 +40,7 @@ export default function RegisterPage() {
             <span className="font-semibold text-gray-900 text-lg">VoTally</span>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-          <p className="text-gray-500 text-sm mt-1">Free forever — no credit card needed</p>
+          <p className="text-gray-500 text-sm mt-1">Free during beta — no credit card needed</p>
         </div>
 
         <div className="card p-6">
