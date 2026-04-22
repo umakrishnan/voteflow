@@ -9,6 +9,11 @@ const pool = new Pool({
     : false,
 });
 
+// Prevent unhandled exception on unexpected client disconnects
+pool.on('error', (err) => {
+  console.error('Unexpected Postgres pool error:', err.message);
+});
+
 // Run schema on startup — CREATE TABLE IF NOT EXISTS is idempotent
 const initSchema = async () => {
   const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');

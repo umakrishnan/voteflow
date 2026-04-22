@@ -167,9 +167,19 @@ router.post('/:slug/questions/:qid/options', requireAuth, async (req, res) => {
 
 router.put('/:slug/questions/:qid/options/:oid', requireAuth, async (req, res) => {
   try {
-    const optRes = await pool.query('SELECT * FROM candidates WHERE id=$1 AND question_id=$2', [req.params.oid, req.params.qid]);
+    const elRes = await pool.query('SELECT * FROM elections WHERE slug=$1 AND owner_id=$2', [req.params.slug, req.user.id]);
+    const election = elRes.rows[0];
+    if (!election) return res.status(404).json({ error: 'Election not found' });
+    if (election.status !== 'draft') return res.status(400).json({ error: 'Cannot modify an open or closed election' });
+
+    // Verify option belongs to a question in this election
+    const optRes = await pool.query(
+      'SELECT c.* FROM candidates c JOIN questions q ON q.id=c.question_id WHERE c.id=$1 AND c.question_id=$2 AND q.election_id=$3',
+      [req.params.oid, req.params.qid, election.id]
+    );
     const opt = optRes.rows[0];
     if (!opt) return res.status(404).json({ error: 'Option not found' });
+
     const { name, description } = req.body;
     const result = await pool.query('UPDATE candidates SET name=$1, description=$2 WHERE id=$3 RETURNING *',
       [name??opt.name, description??opt.description, opt.id]);
@@ -179,7 +189,15 @@ router.put('/:slug/questions/:qid/options/:oid', requireAuth, async (req, res) =
 
 router.delete('/:slug/questions/:qid/options/:oid', requireAuth, async (req, res) => {
   try {
-    await pool.query('DELETE FROM candidates WHERE id=$1 AND question_id=$2', [req.params.oid, req.params.qid]);
+    const elRes = await pool.query('SELECT id FROM elections WHERE slug=$1 AND owner_id=$2', [req.params.slug, req.user.id]);
+    const election = elRes.rows[0];
+    if (!election) return res.status(404).json({ error: 'Election not found' });
+
+    // Verify option belongs to a question in this election before deleting
+    await pool.query(
+      'DELETE FROM candidates WHERE id=$1 AND question_id=$2 AND question_id IN (SELECT id FROM questions WHERE election_id=$3)',
+      [req.params.oid, req.params.qid, election.id]
+    );
     res.json({ success: true });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to delete option' }); }
 });

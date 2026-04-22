@@ -3,13 +3,6 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import api from '../api';
 
-const METHOD_LABELS = {
-  plurality: 'Plurality',
-  irv: 'Ranked Choice (IRV)',
-  approval: 'Approval',
-  condorcet: 'Condorcet',
-};
-
 export default function DashboardPage() {
   const [elections, setElections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +59,7 @@ export default function DashboardPage() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   {statusBadge(e.status)}
-                  <span className="text-xs text-gray-400">{METHOD_LABELS[e.method]}</span>
+                  <span className="text-xs text-gray-400">{e.question_count} question{e.question_count !== '1' ? 's' : ''}</span>
                 </div>
                 <h3 className="font-medium text-gray-900 truncate group-hover:text-brand-600 transition-colors">
                   {e.title}
