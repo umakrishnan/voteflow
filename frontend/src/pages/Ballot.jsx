@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api';
+import { getApiError } from '../utils/apiError';
 
 export function PluralityQuestion({ question, answer, onChange }) {
   return (
@@ -164,7 +165,7 @@ export default function BallotPage() {
         setState('ready');
       })
       .catch(err => {
-        const msg = err.response?.data?.error || 'Invalid voting link';
+        const msg = getApiError(err, 'Invalid voting link');
         const alreadyVoted = err.response?.data?.alreadyVoted;
         if (alreadyVoted) setState('voted');
         else if (err.response?.status === 403) { setState('closed'); setErrorMsg(msg); }
@@ -207,7 +208,7 @@ export default function BallotPage() {
       setSuccessMsg(res.data.message);
       setState('voted');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to submit vote');
+      alert(getApiError(err, 'Failed to submit vote'));
       setSubmitting(false);
     }
   };

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { getApiError } from '../utils/apiError';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -21,7 +22,7 @@ export default function RegisterPage() {
       await register(form.email, form.password, form.name);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      setError(getApiError(err, 'Registration failed. Please try again.'));
     } finally {
       setLoading(false);
     }

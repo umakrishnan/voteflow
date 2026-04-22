@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import api from '../api';
+import { getApiError } from '../utils/apiError';
 
 export default function CreateElectionPage() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function CreateElectionPage() {
       const res = await api.post('/elections', form);
       navigate(`/elections/${res.data.election.slug}`);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create election');
+      setError(getApiError(err, 'Failed to create election'));
       setLoading(false);
     }
   };

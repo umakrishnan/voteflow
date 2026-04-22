@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
+import { getApiError } from '../utils/apiError';
 
 export default function ResetPasswordPage() {
   const { token } = useParams();
@@ -20,7 +21,7 @@ export default function ResetPasswordPage() {
       await api.post('/auth/reset-password', { token, password });
       navigate('/login?reset=1');
     } catch (err) {
-      setError(err.response?.data?.error || 'This link is invalid or has expired.');
+      setError(getApiError(err, 'This link is invalid or has expired.'));
     } finally {
       setLoading(false);
     }

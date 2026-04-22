@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
+import StatusBadge from '../components/StatusBadge';
 import api from '../api';
+import { getApiError } from '../utils/apiError';
 import { PluralityQuestion, RankedQuestion, ApprovalQuestion, METHOD_INSTRUCTIONS } from './Ballot';
 
 const METHODS = [
@@ -72,15 +74,19 @@ export default function ElectionAdminPage() {
       setAddingOptionTo(res.data.question.id);
       refresh();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to add question');
+      setError(getApiError(err, 'Failed to add question'));
     }
   };
 
   const deleteQuestion = async id => {
     if (!confirm('Delete this question and all its options?')) return;
-    await api.delete(`/elections/${slug}/questions/${id}`);
-    if (expandedQuestion === id) setExpandedQuestion(null);
-    refresh();
+    try {
+      await api.delete(`/elections/${slug}/questions/${id}`);
+      if (expandedQuestion === id) setExpandedQuestion(null);
+      refresh();
+    } catch (err) {
+      setError(getApiError(err, 'Failed to delete question'));
+    }
   };
 
   const addOption = async (questionId, e) => {
@@ -92,13 +98,17 @@ export default function ElectionAdminPage() {
       setAddingOptionTo(null);
       refresh();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to add option');
+      setError(getApiError(err, 'Failed to add option'));
     }
   };
 
   const deleteOption = async (questionId, optionId) => {
-    await api.delete(`/elections/${slug}/questions/${questionId}/options/${optionId}`);
-    refresh();
+    try {
+      await api.delete(`/elections/${slug}/questions/${questionId}/options/${optionId}`);
+      refresh();
+    } catch (err) {
+      setError(getApiError(err, 'Failed to delete option'));
+    }
   };
 
   // ── Voters ────────────────────────────────────────────────────────────────
@@ -140,7 +150,7 @@ export default function ElectionAdminPage() {
       setVoterInput('');
       refresh();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to add voters');
+      setError(getApiError(err, 'Failed to add voters'));
     }
   };
 
@@ -158,7 +168,7 @@ export default function ElectionAdminPage() {
       setVoterMsg(`Sent ${res.data.sent} email${res.data.sent !== 1 ? 's' : ''}${res.data.failed > 0 ? ` · ${res.data.failed} failed` : ''}`);
       refresh();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send emails');
+      setError(getApiError(err, 'Failed to send emails'));
     } finally {
       setSending(false);
     }
@@ -182,7 +192,7 @@ export default function ElectionAdminPage() {
       await api.patch(`/elections/${slug}`, { status });
       refresh();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update status');
+      setError(getApiError(err, 'Failed to update status'));
     }
   };
 
@@ -195,10 +205,6 @@ export default function ElectionAdminPage() {
   const voteCount = voters.filter(v => v.voted_at).length;
   const turnout = voters.length > 0 ? Math.round((voteCount / voters.length) * 100) : 0;
 
-  const statusBadge = s => {
-    const cls = { draft: 'badge-draft', open: 'badge-open', closed: 'badge-closed' };
-    return <span className={cls[s] || 'badge-draft'}>{s}</span>;
-  };
 
   const isDraft = election.status === 'draft';
   const unvotedVoters = voters.filter(v => !v.voted_at);
@@ -211,7 +217,7 @@ export default function ElectionAdminPage() {
           <Link to="/dashboard" className="text-sm text-gray-400 hover:text-gray-600">← Dashboard</Link>
           <h1 className="text-xl font-bold text-gray-900 mt-1">{election.title}</h1>
           <div className="flex items-center gap-3 mt-1">
-            {statusBadge(election.status)}
+            <StatusBadge status={election.status} />
             <span className="text-xs text-gray-400">{questions.length} question{questions.length !== 1 ? 's' : ''}</span>
             {isDraft && <span className="text-xs text-green-500 flex items-center gap-1">✓ Autosaved</span>}
           </div>

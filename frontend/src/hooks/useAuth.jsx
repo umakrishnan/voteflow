@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import api from '../api';
+import api, { setUnauthorizedHandler } from '../api';
 
 const AuthContext = createContext(null);
 
@@ -7,15 +7,25 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const logout = () => {
+    localStorage.removeItem('votally_token');
+    setUser(null);
+    window.location.href = '/login';
+  };
+
+  // Register the 401 handler once so expired tokens auto-logout everywhere
+  useEffect(() => {
+    setUnauthorizedHandler(logout);
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('votally_token');
     if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Request interceptor in api.js will attach the token automatically
       api.get('/auth/me')
         .then(res => setUser(res.data.user))
         .catch(() => {
           localStorage.removeItem('votally_token');
-          delete api.defaults.headers.common['Authorization'];
         })
         .finally(() => setLoading(false));
     } else {
@@ -27,7 +37,6 @@ export function AuthProvider({ children }) {
     const res = await api.post('/auth/login', { email, password });
     const { user, token } = res.data;
     localStorage.setItem('votally_token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(user);
     return user;
   };
@@ -36,15 +45,8 @@ export function AuthProvider({ children }) {
     const res = await api.post('/auth/register', { email, password, name });
     const { user, token } = res.data;
     localStorage.setItem('votally_token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(user);
     return user;
-  };
-
-  const logout = () => {
-    localStorage.removeItem('votally_token');
-    delete api.defaults.headers.common['Authorization'];
-    setUser(null);
   };
 
   return (

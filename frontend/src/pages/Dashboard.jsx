@@ -1,23 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
+import StatusBadge from '../components/StatusBadge';
 import api from '../api';
 
 export default function DashboardPage() {
   const [elections, setElections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api.get('/elections')
       .then(res => setElections(res.data.elections))
-      .catch(console.error)
+      .catch(() => setError('Failed to load elections. Please refresh.'))
       .finally(() => setLoading(false));
   }, []);
-
-  const statusBadge = status => {
-    const cls = { draft: 'badge-draft', open: 'badge-open', closed: 'badge-closed' };
-    return <span className={cls[status] || 'badge-draft'}>{status}</span>;
-  };
 
   return (
     <Layout title="My Elections">
@@ -33,6 +30,9 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      {error && (
+        <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm border border-red-200">{error}</div>
+      )}
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
@@ -58,7 +58,7 @@ export default function DashboardPage() {
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  {statusBadge(e.status)}
+                  <StatusBadge status={e.status} />
                   <span className="text-xs text-gray-400">{e.question_count} question{e.question_count !== '1' ? 's' : ''}</span>
                 </div>
                 <h3 className="font-medium text-gray-900 truncate group-hover:text-brand-600 transition-colors">
